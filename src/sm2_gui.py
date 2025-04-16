@@ -10,36 +10,47 @@ from datetime import datetime  # 添加datetime模块导入
 
 class SM2GUI:
     def __init__(self, master):
+        """
+        初始化SM2图形界面
+        使用Tkinter创建一个包含密钥管理、签名和验证三个标签页的界面
+        """
         self.master = master
-        self.sm2 = SM2()
+        self.sm2 = SM2()  # 创建SM2算法实例
         
-        # 只支持txt文件
+        # 定义支持的文件类型，当前仅支持txt文件
         self.supported_filetypes = [
             ("文本文件", "*.txt"),
         ]
         
-        # 创建notebook用于分页显示
+        # 创建标签页控件，用于分页显示不同功能
         self.notebook = ttk.Notebook(master)
         self.notebook.pack(fill='both', expand=True, padx=5, pady=5)
         
-        # 创建各个页面
+        # 创建三个主要功能页面：密钥管理、签名操作、验证签名
         self.key_frame = ttk.Frame(self.notebook)
         self.sign_frame = ttk.Frame(self.notebook)
         self.verify_frame = ttk.Frame(self.notebook)
         
+        # 添加标签页到notebook
         self.notebook.add(self.key_frame, text='密钥管理')
         self.notebook.add(self.sign_frame, text='签名')
         self.notebook.add(self.verify_frame, text='验证')
         
-        self.setup_key_page()
-        self.setup_sign_page()
-        self.setup_verify_page()
+        # 初始化各个页面的界面元素
+        self.setup_key_page()    # 设置密钥管理页面
+        self.setup_sign_page()   # 设置签名操作页面
+        self.setup_verify_page() # 设置验证签名页面
         
-        # 加载密钥
+        # 程序启动时自动加载或生成密钥对
         self.load_or_generate_keys()
 
     def setup_key_page(self):
-        """设置密钥管理页面"""
+        """
+        设置密钥管理页面的界面元素
+        包含：
+        1. 密钥展示区域：显示当前的公私钥对
+        2. 操作按钮区域：生成新密钥、导入导出密钥功能
+        """
         # 密钥展示区域
         key_group = ttk.LabelFrame(self.key_frame, text='当前密钥对', padding=10)
         key_group.pack(fill='x', padx=5, pady=5)
@@ -65,7 +76,13 @@ class SM2GUI:
         ttk.Button(btn_frame, text="导入密钥对", command=self.import_keypair).pack(side='left', padx=5)
 
     def setup_sign_page(self):
-        """设置签名页面"""
+        """
+        设置签名页面的界面元素
+        包含：
+        1. 文件选择区域：选择需要签名的文件
+        2. 签名结果区域：显示签名值r和s
+        3. 文件哈希值显示：显示所选文件的SM3哈希值
+        """
         # 文件选择区域
         file_group = ttk.LabelFrame(self.sign_frame, text='选择文件', padding=10)
         file_group.pack(fill='x', padx=5, pady=5)
@@ -103,7 +120,15 @@ class SM2GUI:
         self.file_hash.pack(fill='x', padx=5, pady=5)
 
     def setup_verify_page(self):
-        """设置验证页面"""
+        """
+        设置验证页面的界面元素
+        包含：
+        1. 文件选择：选择待验证的原始文件
+        2. 签名文件：选择.sig格式的签名文件
+        3. 签名信息：显示签名值r和s
+        4. 公钥信息：显示用于验证的公钥
+        5. 验证结果显示
+        """
         # 文件选择区域
         file_group = ttk.LabelFrame(self.verify_frame, text='选择文件', padding=10)
         file_group.pack(fill='x', padx=5, pady=5)
@@ -152,7 +177,12 @@ class SM2GUI:
         self.verify_result.pack(side='left', padx=20)
 
     def load_or_generate_keys(self):
-        """加载或生成密钥对"""
+        """
+        加载或生成SM2密钥对
+        1. 尝试从预设路径加载已存在的密钥文件
+        2. 如果密钥文件不存在，则生成新的密钥对并保存
+        3. 更新界面显示
+        """
         try:
             keyfile_path = Path(__file__).parent / 'assets' / 'keys' / 'sm2_key.txt'
             keyfile_path.parent.mkdir(parents=True, exist_ok=True)
@@ -350,7 +380,19 @@ class SM2GUI:
                 messagebox.showerror("错误", f"读取签名文件失败: {str(e)}")
 
     def generate_signature(self):
-        """生成签名"""
+        """
+        生成文件的SM2签名
+        执行步骤：
+        1. 读取选中的文件内容
+        2. 使用SM2算法生成签名值(r,s)
+        3. 在界面上显示签名结果
+        4. 同时在验证页面自动填入签名值
+        5. 将签名信息保存为.sig文件，包含：
+           - 原始文件信息
+           - 签名时间戳
+           - 签名值(r,s)
+           - 公钥信息
+        """
         filepath = self.file_to_sign.get()
         if not filepath:
             messagebox.showerror("错误", "请先选择要签名的文件")
@@ -407,11 +449,14 @@ class SM2GUI:
             messagebox.showerror("错误", f"签名生成失败: {str(e)}")
 
     def verify_signature(self):
-        """验证签名
-        按照SM2标准进行验证：
-        1. 验证签名值(r,s)
-        2. 验证公钥(x,y)
-        3. 验证消息哈希
+        """
+        验证SM2签名的有效性
+        验证步骤：
+        1. 收集所需信息：原始文件、签名值(r,s)、公钥(x,y)
+        2. 进行基本的格式验证和数值转换
+        3. 计算并显示文件的哈希值
+        4. 使用SM2算法进行标准的签名验证
+        5. 显示验证结果（成功/失败）
         """
         filepath = self.file_to_verify.get()
         r_hex = self.verify_r.get()
