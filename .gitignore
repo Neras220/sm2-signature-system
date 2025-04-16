@@ -2,36 +2,26 @@
 __pycache__/
 *.py[cod]
 *$py.class
-*.so
-build/
-dist/
-*.egg-info/
-.Python
+
+# 虚拟环境
+venv/
+env/
 
 # 日志文件
 *.log
-sm2_debug_log.txt
-
-# IDE
-.idea/
-.vscode/
-
-# 环境文件
-venv/
-env/
-ENV/
-
-# 运行时生成的文件
 logs/
-*.spec
-file_version_info.txt
 
-# 签名测试文件，保留.gitkeep
-src/data/input/*
-!src/data/input/.gitkeep
-src/data/signed/*
-!src/data/signed/.gitkeep
+# IDE配置
+.vscode/
+.idea/
 
-# 密钥文件，保留.gitkeep
-src/assets/keys/*
-!src/assets/keys/.gitkeep
+# 密钥和测试数据
+/assets/keys.txt
+/src/assets/keys.txt
+/src/assets/keys/sm2_key.txt
+
+# 签名数据
+/src/data/signed/*
+!/src/data/signed/.gitkeep
+/src/data/input/*
+!/src/data/input/.gitkeep

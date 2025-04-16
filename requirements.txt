@@ -1,5 +1,6 @@
-gmssl==3.2.1
+gmssl>=3.2.1
 tkinter
 ttk
 hashlib
+pathlib>=1.0.1
 ```
