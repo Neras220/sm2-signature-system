@@ -1,0 +1,37 @@
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+build/
+dist/
+*.egg-info/
+.Python
+
+# 日志文件
+*.log
+sm2_debug_log.txt
+
+# IDE
+.idea/
+.vscode/
+
+# 环境文件
+venv/
+env/
+ENV/
+
+# 运行时生成的文件
+logs/
+*.spec
+file_version_info.txt
+
+# 签名测试文件，保留.gitkeep
+src/data/input/*
+!src/data/input/.gitkeep
+src/data/signed/*
+!src/data/signed/.gitkeep
+
+# 密钥文件，保留.gitkeep
+src/assets/keys/*
+!src/assets/keys/.gitkeep
